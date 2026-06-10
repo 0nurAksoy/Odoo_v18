@@ -35,7 +35,7 @@ Turkish businesses using Odoo need accurate daily exchange rates for sales order
 **Option 2 — Git Clone**
 ```bash
 cd /your/custom-addons/path
-git clone https://github.com/0nurAksoy/tcmb_currency_sync.git
+git clone https://github.com/0nurAksoy/Odoo_v18/tree/main/tcmb_currency_sync
 sudo systemctl restart odoo
 ```
 
