@@ -62,7 +62,7 @@
         id="menu_stock_age_report"
         name="Stock Age Report"
         action="action_stock_age_report"
-        parent="stock.menu_reporting"
+        parent="stock.menu_warehouse_report"
         sequence="25"/>
 
 </odoo>
