@@ -5,7 +5,10 @@
         <field name="name">stock.age.report.list</field>
         <field name="model">stock.age.report</field>
         <field name="arch" type="xml">
-            <list string="Stock Age Report" create="false" edit="false" delete="false">
+            <list string="Stock Age Report"
+                  create="false"
+                  edit="false"
+                  delete="false">
                 <field name="product_id"/>
                 <field name="location_id"/>
                 <field name="qty_on_hand"/>
@@ -13,6 +16,36 @@
                 <field name="age_days"/>
                 <field name="last_refresh"/>
             </list>
+        </field>
+    </record>
+
+    <record id="stock_age_report_search_view" model="ir.ui.view">
+        <field name="name">stock.age.report.search</field>
+        <field name="model">stock.age.report</field>
+        <field name="arch" type="xml">
+            <search string="Stock Age Report">
+                <field name="product_id" string="Product"/>
+                <field name="location_id" string="Location"/>
+                <filter
+                    name="older_than_90_days"
+                    string="Older than 90 Days"
+                    domain="[('age_days', '>=', 90)]"/>
+                <filter
+                    name="older_than_180_days"
+                    string="Older than 180 Days"
+                    domain="[('age_days', '>=', 180)]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter
+                        name="group_by_location"
+                        string="Location"
+                        context="{'group_by': 'location_id'}"/>
+                    <filter
+                        name="group_by_product"
+                        string="Product"
+                        context="{'group_by': 'product_id'}"/>
+                </group>
+            </search>
         </field>
     </record>
 
@@ -24,41 +57,6 @@
         <field name="search_view_id" ref="stock_age_report_search_view"/>
         <field name="context">{}</field>
     </record>
-
-    <record id="stock_age_report_search_view" model="ir.ui.view">
-    <field name="name">stock.age.report.search</field>
-    <field name="model">stock.age.report</field>
-    <field name="arch" type="xml">
-        <search string="Stock Age Report">
-
-            <field name="product_id" string="Product"/>
-            <field name="location_id" string="Location"/>
-
-            <filter
-                name="older_than_90_days"
-                string="Older than 90 Days"
-                domain="[('age_days', '>=', 90)]"/>
-            <filter
-                name="older_than_180_days"
-                string="Older than 180 Days"
-                domain="[('age_days', '>=', 180)]"/>
-
-            <separator/>
-
-            <group expand="0" string="Group By">
-                <filter
-                    name="group_by_location"
-                    string="Location"
-                    context="{'group_by': 'location_id'}"/>
-                <filter
-                    name="group_by_product"
-                    string="Product"
-                    context="{'group_by': 'product_id'}"/>
-            </group>
-
-        </search>
-    </field>
-</record>
 
     <menuitem
         id="menu_stock_age_report"
