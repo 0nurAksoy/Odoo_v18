@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="stock_age_report_list_view" model="ir.ui.view">
+        <field name="name">stock.age.report.list</field>
+        <field name="model">stock.age.report</field>
+        <field name="arch" type="xml">
+            <list string="Stock Age Report" create="false" edit="false" delete="false">
+                <field name="product_id"/>
+                <field name="location_id"/>
+                <field name="qty_on_hand"/>
+                <field name="oldest_move_date"/>
+                <field name="age_days"/>
+                <field name="last_refresh"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_stock_age_report" model="ir.actions.act_window">
+        <field name="name">Stock Age Report</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">stock.age.report</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="stock_age_report_search_view"/>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="stock_age_report_search_view" model="ir.ui.view">
+    <field name="name">stock.age.report.search</field>
+    <field name="model">stock.age.report</field>
+    <field name="arch" type="xml">
+        <search string="Stock Age Report">
+
+            <field name="product_id" string="Product"/>
+            <field name="location_id" string="Location"/>
+
+            <filter
+                name="older_than_90_days"
+                string="Older than 90 Days"
+                domain="[('age_days', '>=', 90)]"/>
+            <filter
+                name="older_than_180_days"
+                string="Older than 180 Days"
+                domain="[('age_days', '>=', 180)]"/>
+
+            <separator/>
+
+            <group expand="0" string="Group By">
+                <filter
+                    name="group_by_location"
+                    string="Location"
+                    context="{'group_by': 'location_id'}"/>
+                <filter
+                    name="group_by_product"
+                    string="Product"
+                    context="{'group_by': 'product_id'}"/>
+            </group>
+
+        </search>
+    </field>
+</record>
+
+    <menuitem
+        id="menu_stock_age_report"
+        name="Stock Age Report"
+        action="action_stock_age_report"
+        parent="stock.menu_reporting"
+        sequence="25"/>
+
+</odoo>
