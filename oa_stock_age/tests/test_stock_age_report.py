@@ -48,11 +48,20 @@ class TestStockAgeReport(TransactionCase):
 
     def test_age_days_calculated_correctly(self):
         self.env['stock.age.report'].action_refresh()
-        records = self.env['stock.age.report'].search([
+
+        record = self.env['stock.age.report'].search([
             ('product_id', '=', self.product.id),
             ('location_id', '=', self.stock_loc.id),
-        ])
-        self.assertEqual(records[0].age_days, 120)
+        ], limit=1)
+
+        oldest_move = self.env['stock.move'].search([
+            ('product_id', '=', self.product.id),
+            ('location_dest_id', '=', self.stock_loc.id),
+            ('state', '=', 'done'),
+        ], order='date asc', limit=1)
+
+        expected_age = (date.today() - oldest_move.date.date()).days
+        self.assertEqual(record.age_days, expected_age)
 
     def test_refresh_replaces_data(self):
         self.env['stock.age.report'].action_refresh()
