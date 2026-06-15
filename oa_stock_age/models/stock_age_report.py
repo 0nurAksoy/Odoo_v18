@@ -37,23 +37,28 @@ class StockAgeReport(models.Model):
 
     @api.model
     def action_refresh(self):
-        # Delete all existing rows
         self.sudo().search([]).unlink()
 
-        # Get all products currently in stock at internal locations
-        quants = self.env['stock.quant'].search([
-            ('location_id.usage', '=', 'internal'),
-            ('quantity', '>', 0),
-        ])
+        quant_groups = self.env['stock.quant'].read_group(
+            domain=[
+                ('location_id.usage', '=', 'internal'),
+                ('quantity', '>', 0),
+            ],
+            fields=['product_id', 'location_id', 'quantity:sum'],
+            groupby=['product_id', 'location_id'],
+            lazy=False,
+        )
 
-        if not quants:
+        if not quant_groups:
             return
 
-        # Get oldest incoming move per product+location in ONE query
+        product_ids = [g['product_id'][0] for g in quant_groups]
+        location_ids = [g['location_id'][0] for g in quant_groups]
+
         move_groups = self.env['stock.move'].read_group(
             domain=[
-                ('product_id', 'in', quants.mapped('product_id').ids),
-                ('location_dest_id', 'in', quants.mapped('location_id').ids),
+                ('product_id', 'in', product_ids),
+                ('location_dest_id', 'in', location_ids),
                 ('state', '=', 'done'),
             ],
             fields=['product_id', 'location_dest_id', 'date:min'],
@@ -61,22 +66,21 @@ class StockAgeReport(models.Model):
             lazy=False,
         )
 
-        # Build lookup dict: (product_id, location_id) → oldest date
         move_map = {}
         for group in move_groups:
-            product_id = group['product_id'][0]
-            location_id = group['location_dest_id'][0]
-            move_map[(product_id, location_id)] = group['date']
+            key = (group['product_id'][0], group['location_dest_id'][0])
+            move_map[key] = group['date']
 
-        # Build rows
         now = fields.Datetime.now()
         today = date.today()
         rows = []
 
-        for quant in quants:
-            key = (quant.product_id.id, quant.location_id.id)
-            oldest_date_raw = move_map.get(key)
+        for group in quant_groups:
+            product_id = group['product_id'][0]
+            location_id = group['location_id'][0]
+            key = (product_id, location_id)
 
+            oldest_date_raw = move_map.get(key)
             if not oldest_date_raw:
                 continue
 
@@ -90,9 +94,9 @@ class StockAgeReport(models.Model):
             age = (today - oldest_date).days
 
             rows.append({
-                'product_id': quant.product_id.id,
-                'location_id': quant.location_id.id,
-                'qty_on_hand': quant.quantity,
+                'product_id': product_id,
+                'location_id': location_id,
+                'qty_on_hand': group['quantity'],  # summed quantity
                 'oldest_move_date': oldest_date,
                 'age_days': age,
                 'last_refresh': now,
