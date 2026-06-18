@@ -37,6 +37,7 @@ class TestStockAgeReport(TransactionCase):
             'product_id': self.product.id,
             'location_id': self.stock_loc.id,
             'quantity': 8.0,
+            'in_date': self.move.date,
         })
 
     def test_refresh_creates_rows(self):
@@ -54,13 +55,7 @@ class TestStockAgeReport(TransactionCase):
             ('location_id', '=', self.stock_loc.id),
         ], limit=1)
 
-        oldest_move = self.env['stock.move'].search([
-            ('product_id', '=', self.product.id),
-            ('location_dest_id', '=', self.stock_loc.id),
-            ('state', '=', 'done'),
-        ], order='date asc', limit=1)
-
-        expected_age = (date.today() - oldest_move.date.date()).days
+        expected_age = (date.today() - self.quant.in_date.date()).days
         self.assertEqual(record.age_days, expected_age)
 
     def test_refresh_replaces_data(self):
