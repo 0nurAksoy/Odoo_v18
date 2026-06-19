@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_section_waiter,section waiter,oa_restaurant_ms.model_oa_restaurant_section,oa_restaurant_ms.group_oa_restaurant_waiter,1,0,0,0
+access_section_head,section head waiter,oa_restaurant_ms.model_oa_restaurant_section,oa_restaurant_ms.group_oa_restaurant_head_waiter,1,1,1,1
+access_table_waiter,table waiter,oa_restaurant_ms.model_oa_restaurant_table,oa_restaurant_ms.group_oa_restaurant_waiter,1,0,0,0
+access_table_head,table head waiter,oa_restaurant_ms.model_oa_restaurant_table,oa_restaurant_ms.group_oa_restaurant_head_waiter,1,1,1,1
+access_order_waiter,order waiter,oa_restaurant_ms.model_oa_restaurant_order,oa_restaurant_ms.group_oa_restaurant_waiter,1,1,1,1
+access_order_head,order head waiter,oa_restaurant_ms.model_oa_restaurant_order,oa_restaurant_ms.group_oa_restaurant_head_waiter,1,1,1,1
+access_orderline_waiter,order line waiter,oa_restaurant_ms.model_oa_restaurant_order_line,oa_restaurant_ms.group_oa_restaurant_waiter,1,1,1,1
+access_orderline_head,order line head waiter,oa_restaurant_ms.model_oa_restaurant_order_line,oa_restaurant_ms.group_oa_restaurant_head_waiter,1,1,1,1
+access_salesreport_head,sales report head waiter,oa_restaurant_ms.model_oa_restaurant_sales_report,oa_restaurant_ms.group_oa_restaurant_head_waiter,1,0,0,0
+access_salesreport_manager,sales report manager,oa_restaurant_ms.model_oa_restaurant_sales_report,oa_restaurant_ms.group_oa_restaurant_manager,1,0,0,0

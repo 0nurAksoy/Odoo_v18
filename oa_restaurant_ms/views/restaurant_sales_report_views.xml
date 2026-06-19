@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_restaurant_sales_report_graph" model="ir.ui.view">
+        <field name="name">oa.restaurant.sales.report.graph</field>
+        <field name="model">oa.restaurant.sales.report</field>
+        <field name="arch" type="xml">
+            <graph string="Restaurant Sales" type="bar" sample="1">
+                <field name="order_date" interval="day"/>
+                <field name="price_total" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_restaurant_sales_report_pivot" model="ir.ui.view">
+        <field name="name">oa.restaurant.sales.report.pivot</field>
+        <field name="model">oa.restaurant.sales.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Restaurant Sales" sample="1">
+                <field name="order_date" interval="month" type="row"/>
+                <field name="waiter_id" type="col"/>
+                <field name="price_total" type="measure"/>
+                <field name="quantity" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_restaurant_sales_report_search" model="ir.ui.view">
+        <field name="name">oa.restaurant.sales.report.search</field>
+        <field name="model">oa.restaurant.sales.report</field>
+        <field name="arch" type="xml">
+            <search string="Restaurant Sales">
+                <field name="waiter_id"/>
+                <field name="section_id"/>
+                <field name="product_id"/>
+                <filter name="paid" string="Paid" domain="[('state', '=', 'paid')]"/>
+                <separator/>
+                <filter name="today" string="Today"
+                        domain="[('order_date', '>=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="this_month" string="This Month"
+                        domain="[('order_date', '>=', (context_today().replace(day=1)).strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_waiter" string="Waiter" context="{'group_by': 'waiter_id'}"/>
+                    <filter name="group_section" string="Section" context="{'group_by': 'section_id'}"/>
+                    <filter name="group_product" string="Product" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_day" string="Day" context="{'group_by': 'order_date:day'}"/>
+                    <filter name="group_month" string="Month" context="{'group_by': 'order_date:month'}"/>
+                    <filter name="group_year" string="Year" context="{'group_by': 'order_date:year'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_restaurant_sales_report" model="ir.actions.act_window">
+        <field name="name">Sales Report</field>
+        <field name="res_model">oa.restaurant.sales.report</field>
+        <field name="view_mode">graph,pivot</field>
+        <field name="search_view_id" ref="view_restaurant_sales_report_search"/>
+        <field name="context">{'search_default_paid': 1, 'search_default_group_day': 1}</field>
+    </record>
+
+</odoo>

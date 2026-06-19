@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_restaurant_root"
+              name="Restaurant"
+              sequence="50"
+              groups="oa_restaurant_ms.group_oa_restaurant_waiter"/>
+
+    <menuitem id="menu_restaurant_orders"
+              name="Orders"
+              parent="menu_restaurant_root"
+              action="action_restaurant_order"
+              sequence="10"/>
+
+    <menuitem id="menu_restaurant_tables"
+              name="Tables"
+              parent="menu_restaurant_root"
+              action="action_restaurant_table"
+              sequence="20"/>
+
+    <!-- Manager dashboard / admin panel -->
+    <menuitem id="menu_restaurant_reporting"
+              name="Reporting"
+              parent="menu_restaurant_root"
+              sequence="30"
+              groups="oa_restaurant_ms.group_oa_restaurant_head_waiter"/>
+    <menuitem id="menu_restaurant_sales_report"
+              name="Sales Report"
+              parent="menu_restaurant_reporting"
+              action="action_restaurant_sales_report"
+              sequence="10"/>
+
+    <!-- Configuration (sections) -->
+    <menuitem id="menu_restaurant_config"
+              name="Configuration"
+              parent="menu_restaurant_root"
+              sequence="90"
+              groups="oa_restaurant_ms.group_oa_restaurant_head_waiter"/>
+    <menuitem id="menu_restaurant_sections"
+              name="Sections"
+              parent="menu_restaurant_config"
+              action="action_restaurant_section"
+              sequence="10"/>
+
+</odoo>

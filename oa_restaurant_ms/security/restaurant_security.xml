@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- ============================================================ -->
+        <!--  Roles (security groups)                                     -->
+        <!-- ============================================================ -->
+        <record id="module_category_restaurant" model="ir.module.category">
+            <field name="name">Restaurant</field>
+            <field name="description">Restaurant Management access levels</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="group_oa_restaurant_waiter" model="res.groups">
+            <field name="name">Waiter / Waitress</field>
+            <field name="category_id" ref="module_category_restaurant"/>
+            <field name="comment">Take orders, add/remove products and apply line discounts on tables of their own sections.</field>
+        </record>
+
+        <record id="group_oa_restaurant_head_waiter" model="res.groups">
+            <field name="name">Head Waiter</field>
+            <field name="category_id" ref="module_category_restaurant"/>
+            <field name="implied_ids" eval="[(4, ref('group_oa_restaurant_waiter'))]"/>
+            <field name="comment">Supervisor: manage sections and tables, and see every order.</field>
+        </record>
+
+        <record id="group_oa_restaurant_manager" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="category_id" ref="module_category_restaurant"/>
+            <field name="implied_ids" eval="[(4, ref('group_oa_restaurant_head_waiter'))]"/>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+            <field name="comment">Full access including reports and global (whole-bill) discounts.</field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!--  Record rules                                                -->
+        <!-- ============================================================ -->
+
+        <!-- Waiters: only orders they own or that belong to their sections. -->
+        <record id="rule_order_waiter_own_sections" model="ir.rule">
+            <field name="name">Restaurant order: waiter own sections</field>
+            <field name="model_id" ref="model_oa_restaurant_order"/>
+            <field name="groups" eval="[(4, ref('group_oa_restaurant_waiter'))]"/>
+            <field name="domain_force">
+                ['|', ('waiter_id', '=', user.id), ('section_id.waiter_ids', 'in', [user.id])]
+            </field>
+        </record>
+
+        <!-- Head waiter / Manager: every order (OR-combined with the rule above). -->
+        <record id="rule_order_head_all" model="ir.rule">
+            <field name="name">Restaurant order: supervisors see all</field>
+            <field name="model_id" ref="model_oa_restaurant_order"/>
+            <field name="groups" eval="[(4, ref('group_oa_restaurant_head_waiter'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <!-- Multi-company isolation (global, AND-ed with the rules above). -->
+        <record id="rule_order_multi_company" model="ir.rule">
+            <field name="name">Restaurant order: multi-company</field>
+            <field name="model_id" ref="model_oa_restaurant_order"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <record id="rule_table_multi_company" model="ir.rule">
+            <field name="name">Restaurant table: multi-company</field>
+            <field name="model_id" ref="model_oa_restaurant_table"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <record id="rule_section_multi_company" model="ir.rule">
+            <field name="name">Restaurant section: multi-company</field>
+            <field name="model_id" ref="model_oa_restaurant_section"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+    </data>
+</odoo>

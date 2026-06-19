@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_restaurant_order_list" model="ir.ui.view">
+        <field name="name">oa.restaurant.order.list</field>
+        <field name="model">oa.restaurant.order</field>
+        <field name="arch" type="xml">
+            <list string="Orders"
+                  decoration-info="state == 'draft'"
+                  decoration-success="state == 'paid'"
+                  decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="order_date"/>
+                <field name="table_number"/>
+                <field name="section_id"/>
+                <field name="waiter_id"/>
+                <field name="partner_id" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="amount_total" sum="Total"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'paid'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_restaurant_order_form" model="ir.ui.view">
+        <field name="name">oa.restaurant.order.form</field>
+        <field name="model">oa.restaurant.order</field>
+        <field name="arch" type="xml">
+            <form string="Order">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_pay" string="Mark as Paid" type="object"
+                            class="btn-primary" invisible="state != 'confirmed'"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('paid', 'cancel')"/>
+                    <button name="action_draft" string="Reset to Draft" type="object"
+                            invisible="state != 'cancel'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="table_id" readonly="state != 'draft'"/>
+                            <field name="section_id"/>
+                            <field name="waiter_id"/>
+                        </group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="order_date"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Products">
+                            <field name="line_ids" readonly="state in ('paid', 'cancel')">
+                                <list editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="name"/>
+                                    <field name="quantity"/>
+                                    <field name="price_unit"/>
+                                    <field name="discount"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="price_subtotal"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group class="oe_subtotal_footer">
+                        <field name="amount_untaxed"/>
+                        <field name="global_discount"
+                               readonly="state in ('paid', 'cancel')"
+                               groups="oa_restaurant_ms.group_oa_restaurant_manager"/>
+                        <field name="amount_discount"/>
+                        <field name="amount_total" class="oe_subtotal_footer_separator"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_restaurant_order_search" model="ir.ui.view">
+        <field name="name">oa.restaurant.order.search</field>
+        <field name="model">oa.restaurant.order</field>
+        <field name="arch" type="xml">
+            <search string="Orders">
+                <field name="name"/>
+                <field name="table_id"/>
+                <field name="section_id"/>
+                <field name="waiter_id"/>
+                <field name="partner_id"/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="confirmed" string="Confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <filter name="paid" string="Paid" domain="[('state', '=', 'paid')]"/>
+                <separator/>
+                <filter name="today" string="Today"
+                        domain="[('order_date', '>=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_section" string="Section" context="{'group_by': 'section_id'}"/>
+                    <filter name="group_waiter" string="Waiter" context="{'group_by': 'waiter_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_restaurant_order" model="ir.actions.act_window">
+        <field name="name">Orders</field>
+        <field name="res_model">oa.restaurant.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_restaurant_order_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Take a new order</p>
+            <p>Pick a table, add the customer's products and confirm the bill.</p>
+        </field>
+    </record>
+
+</odoo>

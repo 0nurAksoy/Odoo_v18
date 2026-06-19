@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_restaurant_section_list" model="ir.ui.view">
+        <field name="name">oa.restaurant.section.list</field>
+        <field name="model">oa.restaurant.section</field>
+        <field name="arch" type="xml">
+            <list string="Sections">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="table_count"/>
+                <field name="waiter_ids" widget="many2many_tags" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_restaurant_section_form" model="ir.ui.view">
+        <field name="name">oa.restaurant.section.form</field>
+        <field name="model">oa.restaurant.section</field>
+        <field name="arch" type="xml">
+            <form string="Section">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group string="Assigned Waiters">
+                        <field name="waiter_ids" widget="many2many_tags" nolabel="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Tables">
+                            <field name="table_ids">
+                                <list editable="bottom">
+                                    <field name="table_number"/>
+                                    <field name="seats"/>
+                                    <field name="waiter_id"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_restaurant_section" model="ir.actions.act_window">
+        <field name="name">Sections</field>
+        <field name="res_model">oa.restaurant.section</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first section</p>
+            <p>Group your tables into sections (e.g. Main Hall, Terrace) and assign waiters to them.</p>
+        </field>
+    </record>
+
+</odoo>

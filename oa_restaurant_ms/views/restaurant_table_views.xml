@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Floor view: tables grouped by section, coloured by status -->
+    <record id="view_restaurant_table_kanban" model="ir.ui.view">
+        <field name="name">oa.restaurant.table.kanban</field>
+        <field name="model">oa.restaurant.table</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="section_id" class="o_kanban_small_column">
+                <field name="state"/>
+                <field name="table_number"/>
+                <field name="seats"/>
+                <field name="waiter_id"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_record_has_image_fill">
+                            <div class="o_kanban_record_title">
+                                <strong>Table <field name="table_number"/></strong>
+                            </div>
+                            <div class="o_kanban_record_subtitle">
+                                <i class="fa fa-users" role="img" aria-label="Seats" title="Seats"/>
+                                <field name="seats"/> seats
+                            </div>
+                            <div t-if="record.waiter_id.value">
+                                <i class="fa fa-user" role="img" title="Waiter"/>
+                                <field name="waiter_id"/>
+                            </div>
+                            <div class="mt-1">
+                                <span t-if="record.state.raw_value == 'free'"
+                                      class="badge text-bg-success">Free</span>
+                                <span t-if="record.state.raw_value == 'occupied'"
+                                      class="badge text-bg-danger">Occupied</span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_restaurant_table_list" model="ir.ui.view">
+        <field name="name">oa.restaurant.table.list</field>
+        <field name="model">oa.restaurant.table</field>
+        <field name="arch" type="xml">
+            <list string="Tables"
+                  decoration-success="state == 'free'"
+                  decoration-danger="state == 'occupied'">
+                <field name="table_number"/>
+                <field name="section_id"/>
+                <field name="seats"/>
+                <field name="waiter_id"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_restaurant_table_form" model="ir.ui.view">
+        <field name="name">oa.restaurant.table.form</field>
+        <field name="model">oa.restaurant.table</field>
+        <field name="arch" type="xml">
+            <form string="Table">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Table <field name="table_number" class="oe_inline"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="section_id"/>
+                            <field name="seats"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="waiter_id"/>
+                            <field name="state"/>
+                            <field name="active_order_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Orders">
+                            <field name="order_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="order_date"/>
+                                    <field name="waiter_id"/>
+                                    <field name="state"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="amount_total"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_restaurant_table" model="ir.actions.act_window">
+        <field name="name">Tables</field>
+        <field name="res_model">oa.restaurant.table</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Add your first table</p>
+            <p>Give each table a number inside a section. Tables turn red while an order is open.</p>
+        </field>
+    </record>
+
+</odoo>
