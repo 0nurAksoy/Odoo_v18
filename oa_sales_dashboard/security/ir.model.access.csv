@@ -1,4 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_oa_sales_snapshot_manager,oa.sales.dashboard.snapshot.manager,model_oa_sales_dashboard_snapshot,sales_team.group_sale_manager,1,0,0,0
 access_oa_sales_kpi_manager,oa.sales.kpi.manager,model_oa_sales_kpi,sales_team.group_sale_manager,1,0,0,0
 access_oa_sales_kpi_admin,oa.sales.kpi.admin,model_oa_sales_kpi,base.group_system,1,1,1,1

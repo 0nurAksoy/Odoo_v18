@@ -9,10 +9,8 @@
     'depends': ['sale_management','sale_margin','sale_stock','crm'],
     'data': [
         'security/ir.model.access.csv',
-        'security/security.xml',
         'views/sales_kpi_views.xml',
         'views/menus.xml',
-        'data/ir.cron.xml',
     ],
     'assets': {
         'web.assets_backend': [
