@@ -4,7 +4,7 @@
     <t t-name="oa_sales_dashboard.SalesDashboard">
         <div class="o_sales_dashboard p-4">
 
-            <!-- Row 1: KPI tiles -->
+
             <div class="row g-3 mb-4">
                 <t t-foreach="state.tiles" t-as="tile" t-key="tile.key">
                     <div class="col-12 col-sm-6 col-lg-3">
@@ -21,7 +21,7 @@
                 <div t-if="state.loading" class="col-12 text-muted">Loading…</div>
             </div>
 
-            <!-- Row 2: charts (rendered once data is loaded) -->
+
             <div class="row g-3" t-if="!state.loading">
                 <div class="col-12 col-lg-4">
                     <ChartCard title="'Revenue by Branch (This Month)'"

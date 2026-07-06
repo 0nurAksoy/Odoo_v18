@@ -8,30 +8,25 @@ import { standardActionServiceProps } from "@web/webclient/actions/action_servic
 
 const CHART_COLORS = ["#3C5A78", "#28a745", "#7E60BF", "#C0504D", "#E8A33D", "#5BC0BE"];
 
-/**
- * One card = one <canvas> = one Chart.js instance.
- * Same lifecycle pattern as core's JournalDashboardGraphField:
- * load the lib in onWillStart, draw in useEffect, destroy on cleanup.
- */
+
 class ChartCard extends Component {
     static template = "oa_sales_dashboard.ChartCard";
     static props = {
         title: String,
-        type: String, // "pie" | "line"
-        data: Object, // { labels: [...], values: [...] }
+        type: String,
+        data: Object,
     };
 
     setup() {
         this.canvasRef = useRef("canvas");
         this.chart = null;
 
-        // Chart.js ships with Odoo but is lazy-loaded; this makes
-        // the global `Chart` available. Cached after the first call.
+
         onWillStart(async () => await loadBundle("web.chartjs_lib"));
 
         useEffect(() => {
             this.renderChart();
-            return () => this.chart?.destroy(); // cleanup on unmount
+            return () => this.chart?.destroy();
         });
     }
 

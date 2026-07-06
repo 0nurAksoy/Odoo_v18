@@ -1,27 +1,8 @@
-# Demo data for oa_sales_dashboard — real confirmed sale orders.
-#
-# The dashboard reads sale.report LIVE, so seeded orders appear on the next
-# dashboard load; no cron/snapshot involved. Service products create no
-# stock pickings, so cleanup is a clean cancel + unlink.
-#
-# EASIEST WAY TO RUN (one line, no pasting into a REPL, service can stay up —
-# `odoo-bin shell` never binds port 8069):
-#
-#   seed:
-#     /opt/odoo/venv/bin/python3 /opt/odoo/odoo/odoo-bin shell -c /opt/odoo/odoo.conf -d odoo18_dev < /home/onur/Desktop/Odoo_v18/oa_sales_dashboard/scripts/demo_data.py
-#   clear:
-#     OA_DEMO=clear /opt/odoo/venv/bin/python3 /opt/odoo/odoo/odoo-bin shell -c /opt/odoo/odoo.conf -d odoo18_dev < /home/onur/Desktop/Odoo_v18/oa_sales_dashboard/scripts/demo_data.py
-#
-# Or interactively inside the shell:
-#   exec(open('/home/onur/Desktop/Odoo_v18/oa_sales_dashboard/scripts/demo_data.py').read())
-#   seed_demo()
-#   clear_demo()
-
 import os
 import random
 from datetime import date, datetime, time, timedelta
 
-DEMO_TAG = "OA_DEMO"   # marker on client_order_ref + partner/product/warehouse names
+DEMO_TAG = "OA_DEMO"
 
 
 def _say(msg):
@@ -43,9 +24,9 @@ def _demo_products(e):
     ]
     products = Product.create([{
         'name': f"{DEMO_TAG} {name}",
-        'type': 'service',          # no inventory -> no pickings -> clean cleanup
+        'type': 'service',
         'list_price': price,
-        'standard_price': cost,     # cost drives margin via sale_margin
+        'standard_price': cost,
     } for (name, price, cost) in specs])
     _say(f"created {len(products)} demo products")
     return products
@@ -66,7 +47,6 @@ def _demo_partners(e):
 
 
 def _demo_warehouses(e):
-    """The 'Revenue by Branch' pie needs >= 2 warehouses to look like a pie."""
     Warehouse = e['stock.warehouse']
     warehouses = Warehouse.search([('company_id', '=', e.company.id)])
     if len(warehouses) < 2:
@@ -79,12 +59,10 @@ def _demo_warehouses(e):
 
 
 def seed_demo(days=180, n_orders=250, n_today=6):
-    """Create demo orders: `n_today` dated today (for the Orders Today tile),
-    the rest spread over the last `days` days (6 months feeds the line chart).
-    """
+
     if 'env' not in globals():
         raise SystemExit("Run inside `odoo-bin shell` — see the header of this file.")
-    e = env(context=dict(env.context, tracking_disable=True))   # skip mail tracking
+    e = env(context=dict(env.context, tracking_disable=True))
 
     products = _demo_products(e).product_variant_ids
     partners = _demo_partners(e)
@@ -106,11 +84,10 @@ def seed_demo(days=180, n_orders=250, n_today=6):
     orders = e['sale.order'].create(order_vals)
     _say(f"created {len(orders)} draft orders")
 
-    orders.action_confirm()   # -> state 'sale' (no email: send_email not in context)
+    orders.action_confirm()
     _say("confirmed all orders")
 
-    # action_confirm() resets date_order to now() -> backdate AFTER confirming.
-    # The first n_today orders keep today's date.
+
     for i, order in enumerate(orders):
         day = today if i < n_today else today - timedelta(days=random.randint(0, days - 1))
         order.date_order = datetime.combine(
@@ -124,12 +101,12 @@ def seed_demo(days=180, n_orders=250, n_today=6):
 
 
 def clear_demo():
-    """Remove everything seed_demo created (warehouse is archived, not deleted)."""
+
     if 'env' not in globals():
         raise SystemExit("Run inside `odoo-bin shell` — see the header of this file.")
 
     orders = env['sale.order'].search([('client_order_ref', '=', DEMO_TAG)])
-    # sale.order can only be unlinked in draft/cancel -> cancel first
+
     orders.filtered(lambda o: o.state == 'sale')._action_cancel()
     orders.unlink()
     env.cr.commit()
@@ -137,11 +114,11 @@ def clear_demo():
 
     warehouses = env['stock.warehouse'].search([('name', 'like', DEMO_TAG)])
     if warehouses:
-        warehouses.action_archive()   # unlink is blocked once a warehouse was used
+        warehouses.action_archive()
         env.cr.commit()
         _say(f"archived {len(warehouses)} demo warehouse(s)")
 
-    # masters are best-effort, each in its own transaction
+
     for model in ('product.template', 'res.partner'):
         records = env[model].search([('name', 'like', DEMO_TAG)])
         if not records:
@@ -155,8 +132,7 @@ def clear_demo():
             _say(f"kept {len(records)} {model} (still referenced): {exc}")
 
 
-# When piped via stdin, odoo shell executes this file with __name__ == '__main__'
-# (interactive exec() leaves __name__ unset, so nothing auto-runs there).
+
 if globals().get('__name__') == '__main__':
     _action = os.environ.get('OA_DEMO', 'seed').strip().lower()
     _say(f"auto-run: {_action}")

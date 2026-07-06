@@ -10,12 +10,9 @@ class SalesKpi(models.Model):
     _name = "oa.sales.kpi"
     _description = "Sales Dashboard Data Provider"
 
-    # This model holds no records; it only serves live data to the OWL
-    # dashboard via get_dashboard_data(), aggregated from sale.report.
 
     @api.model
     def get_dashboard_data(self):
-        """All data the OWL dashboard needs, computed live from sale.report."""
         return {
             "tiles": self._dashboard_tiles(),
             "charts": self._dashboard_charts(),
@@ -49,10 +46,7 @@ class SalesKpi(models.Model):
              "value": str(orders_today), "color": "#C0504D", "icon": "fa-shopping-cart"},
         ]
 
-    # ------------------------------------------------------------------
-    # Charts (Step 3) — each returns {"labels": [...], "values": [...]},
-    # the simplest JSON shape Chart.js needs. All live from sale.report.
-    # ------------------------------------------------------------------
+
     @api.model
     def _dashboard_charts(self):
         today = fields.Date.context_today(self)
@@ -72,7 +66,6 @@ class SalesKpi(models.Model):
             ["price_total:sum"], ["warehouse_id"], lazy=False)
         labels, values = [], []
         for g in groups:
-            # read_group returns (id, display_name) tuples for many2one keys
             labels.append(g["warehouse_id"][1] if g["warehouse_id"] else "No Branch")
             values.append(round(g["price_total"] or 0.0, 2))
         return {"labels": labels, "values": values}
@@ -93,12 +86,6 @@ class SalesKpi(models.Model):
 
     @api.model
     def _revenue_by_month(self, months=6):
-        """Last `months` calendar months incl. the current one, zero-filled.
-
-        One small query per month (reusing _sum) instead of a single
-        read_group on date:month — slower on paper, but trivially simple
-        and months without sales still appear as 0 on the line.
-        """
         this_month = fields.Date.context_today(self).replace(day=1)
         labels, values = [], []
         for i in range(months - 1, -1, -1):
