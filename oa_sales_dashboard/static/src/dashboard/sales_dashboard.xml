@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="oa_sales_dashboard.SalesDashboard">
+        <div class="o_sales_dashboard p-4">
+
+            <!-- Row 1: KPI tiles -->
+            <div class="row g-3 mb-4">
+                <t t-foreach="state.tiles" t-as="tile" t-key="tile.key">
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="p-3 rounded-3 text-white shadow-sm h-100"
+                             t-attf-style="background-color: {{tile.color}}; min-height: 110px;">
+                            <div class="d-flex align-items-center mb-2 opacity-75">
+                                <i t-attf-class="fa fa-fw me-2 {{tile.icon}}"/>
+                                <span class="text-uppercase small fw-bold" t-out="tile.label"/>
+                            </div>
+                            <div class="fs-2 fw-bolder" t-out="tile.value"/>
+                        </div>
+                    </div>
+                </t>
+                <div t-if="state.loading" class="col-12 text-muted">Loading…</div>
+            </div>
+
+            <!-- Row 2: charts (rendered once data is loaded) -->
+            <div class="row g-3" t-if="!state.loading">
+                <div class="col-12 col-lg-4">
+                    <ChartCard title="'Revenue by Branch (This Month)'"
+                               type="'pie'"
+                               data="state.charts.revenue_by_branch"/>
+                </div>
+                <div class="col-12 col-lg-4">
+                    <ChartCard title="'Revenue by Product (This Month)'"
+                               type="'pie'"
+                               data="state.charts.revenue_by_product"/>
+                </div>
+                <div class="col-12 col-lg-4">
+                    <ChartCard title="'Revenue by Month'"
+                               type="'line'"
+                               data="state.charts.revenue_by_month"/>
+                </div>
+            </div>
+
+        </div>
+    </t>
+
+    <t t-name="oa_sales_dashboard.ChartCard">
+        <div class="border rounded-3 shadow-sm p-3 h-100">
+            <h6 class="text-muted text-uppercase small fw-bold mb-2" t-out="props.title"/>
+            <div style="height: 260px;">
+                <canvas t-ref="canvas"/>
+            </div>
+        </div>
+    </t>
+
+</templates>
